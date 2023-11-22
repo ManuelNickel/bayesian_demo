@@ -1,0 +1,13 @@
+name: bnn-py39
+channels:
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.9
+  - numpy
+  - matplotlib
+  - tqdm
+  - pytorch:pytorch
+  - pytorch:torchvision
+  - nvidia:cudatoolkit=11.3
+  - pip
