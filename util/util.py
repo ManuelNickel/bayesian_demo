@@ -5,8 +5,12 @@ import matplotlib.pyplot as plt
 
 
 def kl_divergence(q, p, eps=1e-15):
-    assert np.all(q >= 0), f"Expected valid probability distribution for q but encountered negative values"
-    assert np.all(p >= 0), f"Expected valid probability distribution for p but encountered negative values"
+    assert np.all(
+        q >= 0
+    ), f"Expected valid probability distribution for q but encountered negative values"
+    assert np.all(
+        p >= 0
+    ), f"Expected valid probability distribution for p but encountered negative values"
 
     # Let's add a tiny value to p so that KL is not always infinite
     p = p + eps
@@ -21,7 +25,7 @@ def trace(model, samples, x_min=-2.5, x_max=2.5, bins=100, kl_skip=50):
     n = len(samples)
     t = np.arange(n)
     fig, ax = plt.subplots()
-    ax.plot(t, samples, c='k', linewidth=0.3)
+    ax.plot(t, samples, c="k", linewidth=0.3)
 
     # Compute acceptance rate
     rejected = np.isclose(np.diff(samples), 0)
@@ -36,8 +40,8 @@ def trace(model, samples, x_min=-2.5, x_max=2.5, bins=100, kl_skip=50):
     y_max = max(max(q), max(p))
     yp = p / y_max * 0.1 * n
     yq = q / y_max * 0.1 * n
-    ax.plot(yq, x, c='r')
-    ax.plot(yp, x, c='b')
+    ax.plot(yq, x, c="r")
+    ax.plot(yp, x, c="b")
 
     # Compute KL divergence
     kl = kl_divergence(q, p)
@@ -45,7 +49,7 @@ def trace(model, samples, x_min=-2.5, x_max=2.5, bins=100, kl_skip=50):
     # Compute KL divergence over time
     kls = np.empty(n - kl_skip)
     for i in range(0, n - kl_skip):
-        p, _ = np.histogram(samples[:kl_skip + i], bins=bin_edges, density=True)
+        p, _ = np.histogram(samples[: kl_skip + i], bins=bin_edges, density=True)
         kls[i] = kl_divergence(q, p)
 
     # Plot KL divergence wrt the right axis
@@ -53,22 +57,24 @@ def trace(model, samples, x_min=-2.5, x_max=2.5, bins=100, kl_skip=50):
     x = np.arange(kl_skip, n)
     ax_right.plot(x, kls, c="g")
 
-    plt.title(f"Sample trace - {acceptance_rate * 100:.2f}% acceptance, {kl:.2f} KL divergence")
+    plt.title(
+        f"Sample trace - {acceptance_rate * 100:.2f}% acceptance, {kl:.2f} KL divergence"
+    )
     ax.set_xlabel("Time step")
     ax.set_ylabel("Sample value", c="r")
-    ax.tick_params(axis='y', labelcolor="r")
+    ax.tick_params(axis="y", labelcolor="r")
     ax_right.set_ylabel("KL divergence", c="g")
-    ax_right.tick_params(axis='y', labelcolor="g")
+    ax_right.tick_params(axis="y", labelcolor="g")
     ax_right.set_ylim([0, 15])
     plt.show()
 
- 
+
 def plot_distribution(model, samples, x_min=-2.5, x_max=2.5, bins=100):
     x = np.arange(x_min, x_max, 0.001)
     y = model(x)
 
     plt.hist(samples, bins=bins, density=True, label="Sample histogram")
-    plt.plot(x, y, c='r', label="target PDF")
+    plt.plot(x, y, c="r", label="target PDF")
     plt.legend(loc="upper right")
 
     plt.title("Target distribution vs. sample histogram")
@@ -91,7 +97,14 @@ def show_images(images, samples, labels):
         ax[1].set_xticklabels([i for i in range(sample.shape[1])])
 
 
-def run_model_on_data(model, dataset, num_images=None, num_samples_per_image=128, select_class=None, shuffle=True):
+def run_model_on_data(
+    model,
+    dataset,
+    num_images=None,
+    num_samples_per_image=128,
+    select_class=None,
+    shuffle=True,
+):
     if select_class is not None:
         indices = np.where(dataset.targets == select_class)[0]
         dataset = torch.utils.data.Subset(dataset, indices)
@@ -99,7 +112,9 @@ def run_model_on_data(model, dataset, num_images=None, num_samples_per_image=128
     if num_images is None:
         num_images = len(dataset)
 
-    data_loader = torch.utils.data.DataLoader(dataset, batch_size=num_images, shuffle=shuffle)
+    data_loader = torch.utils.data.DataLoader(
+        dataset, batch_size=num_images, shuffle=shuffle
+    )
     samples = torch.zeros((num_samples_per_image, num_images, 10))
     images, labels = next(iter(data_loader))
 
@@ -119,7 +134,9 @@ def store_for_later():
     select_class = 5
 
     _, test = make_mnist()
-    images, labels, samples = run_model_on_data(model, test, None, num_samples_per_image, select_class)
+    images, labels, samples = run_model_on_data(
+        model, test, None, num_samples_per_image, select_class
+    )
 
     median = np.median(samples, axis=1)
     upper_percentile = np.percentile(samples, 90, axis=1)
